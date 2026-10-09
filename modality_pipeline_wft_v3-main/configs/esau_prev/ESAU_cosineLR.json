@@ -1,0 +1,57 @@
+{
+    "experiment_name": "CosineLR_ESAU",
+    "model_info": {
+        "name": "3DUNET",
+        "path": "pl_models/models/ESAU_net.py",
+        "model_class": "ESAU",
+        "modelType": "vol2vol",
+        "possibleTypes": ["vol2vol", "3DPatch", "2DImage", "2.5DImage"],
+
+        "pretrained": "True",
+        "weight_path" : "models/3DSwin/weights.pth"
+    },
+    "model": {
+        "in_channels": 256,
+        "out_channels": 256,
+        "n_channels": 128,
+        "num_heads": [2,2,4,8],
+        "res" : true 
+    },
+    "checkpoint":{
+        "save_frequency_epoch": 5,
+        "save_topk": 3,
+        "monitor": "val_loss",
+        "dirpath": "checkpoints/",
+        "filename": "{epoch}-{step}-{val_loss:.8f}"
+    },
+    "loss":{
+        "name": "L1",
+        "SSIM": {
+            "params": {
+                "weight": 1.0,
+                "ignore_index": -1,
+                "reduction": "mean"
+            }
+        },
+        "Perceptual": {
+            "params": {
+                "weight": 1.0,
+                "ignore_index": -1,
+                "reduction": "mean",
+                "model": "vgg16",
+                "layers": [0, 5, 10, 19, 28]
+            }
+        }
+    },
+    "training": {
+        "mono_channel": false,
+        "epochs": 500,
+        "batch_size": 1,
+        "num_workers": 4,
+        "learning_rate": 0.001,
+        "optimizer": "adam",
+        "scheduler": "SingleCycleCosine",
+        "cosine_restart_after": 20,
+        "loss_function": "cross_entropy"
+    }
+}

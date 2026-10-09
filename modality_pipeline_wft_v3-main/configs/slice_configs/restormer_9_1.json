@@ -1,0 +1,260 @@
+{
+  "_comment": "SANITY CHECK: restormer_2 (pl_models/models/restormer_2.py, the unofficial Restormer) on 3T -> 7T (10_Pat_t1), 3 epochs per split, all 10 subject-level folds. restormer_2 is residual (output(fr) + x) so it now ends in Hardtanh(0, 1): source/target are slicify min-max normalised to [0, 1] and the IQA metrics use data_range=1.0. 'channels' must double at every level.",
+  "Project_Name": "Restormer_9_1",
+  "experiment_name": "restormer_2",
+  "seed": {
+    "_comment": "apply=true calls set_seed() before anything else: python/numpy/torch/cuda RNGs + cudnn.deterministic. Costs throughput (cudnn.benchmark is forced off).",
+    "apply": false,
+    "value": 42
+  },
+  "prompts": {
+    "_comment": "false skips the blocking 'logs/<exp> already exists, continue?' input(). Set false for unattended/queued runs. The 'slices not found' prompt in slice_checker.py is separate and always blocks.",
+    "confirm_overwrite": false
+  },
+  "model_info": {
+    "_comment": "restormer_2.py takes num_blocks/num_heads/channels/num_refinement/expansion_factor (NOT restormer.py's dim/num_refinement_blocks/heads/bias/LayerNorm_type). The whole 'model' block is splatted into __init__ unfiltered, so the keys must match the signature exactly. output_range_01 says what range the MODEL speaks: true = [0, 1] (pair it with out_activation 'hardtanh'/'sigmoid'), false = [-1, 1] (pair it with 'tanh'). The pipeline itself is always [0, 1]; when false, master_half_slice_re.py::model_forward scales the input to [-1, 1] and the prediction back to [0, 1], so the loss, metrics and saved volumes are unchanged either way.",
+    "name": "Restormer",
+    "path": "pl_models/models/restormer_paper.py",
+    "model_class": "Restormer",
+    "modelType": "pre_computed_slice2slice",
+    "single_channel_model": false,
+    "output_range_01": true,
+    "possibleTypes": [
+      "vol2vol",
+      "patch2patch",
+      "2DImage",
+      "2.5DImage",
+      "pre_computed_patch2patch",
+      "pre_computed_slice2slice"
+    ],
+    "pretrained": "False"
+  },
+  "model": {
+        "inp_channels":1, 
+        "out_channels":1, 
+        "dim" : 48,
+        "num_blocks" : [4,6,6,8], 
+        "num_refinement_blocks" : 4,
+        "heads" : [1,2,4,8],
+        "ffn_expansion_factor" : 2.66,
+        "bias" : false,
+        "LayerNorm_type" : "WithBias",
+        "dual_pixel_task" : false
+  },
+  "data": {
+    "direction": {
+      "_comment": "3T is the input, 7T the synthesis target; MASKS holds the binary brain masks. Filenames match exactly across all three directories, which slicify requires.",
+      "source": "3T",
+      "target": "7T",
+      "mask_dir_name": "MASKS"
+    },
+    "training": {
+      "subjects_path": "/home/ig/Datasets/MRIData/MRData/10_Pat_t1",
+      "subjects": [
+        "sub-01_T1w.nii.gz",
+        "sub-02_T1w.nii.gz",
+        "sub-03_T1w.nii.gz",
+        "sub-04_T1w.nii.gz",
+        "sub-05_T1w.nii.gz",
+        "sub-06_T1w.nii.gz",
+        "sub-07_T1w.nii.gz",
+        "sub-08_T1w.nii.gz",
+        "sub-09_T1w.nii.gz",
+        "sub-10_T1w.nii.gz"
+      ]
+    },
+    "slice_axis": 2
+  },
+  "slicify": {
+    "_comment": "Axial in-plane is 260x311, so pad_to must be >= 311; 320 pads to a square and keeps the in-plane scaling isotropic, then one 320->256 resize. Cache lands in <subjects_path>/slices/256x320/.",
+    "pad_boolean": true,
+    "pad_to": 320,
+    "resize_to": 256
+  },
+  "intensity_augmentations": {
+    "_comment": "Only consumed when evaluation.ground_truth_norm == 'percentile'. [low_clip_value, high_percentile] passed to load_and_normalize_slices.",
+    "mri_intensity_percentile": [
+      0,
+      100
+    ]
+  },
+  "pretrain_augments": {
+    "block_augments": {
+      "_comment": "Pretext-task corruption of the model INPUT only (augmentations/block_augments_2d.py). Order is fixed: GIN -> blockwise downsample -> block mask.",
+      "apply": false,
+      "config": {
+        "block": [
+          8,
+          8
+        ],
+        "gin_apply": false,
+        "gin_lam_max": 1,
+        "gin_conserve_enegry": true,
+        "downsample_apply": false,
+        "downsample_factors": [
+          2,
+          4
+        ],
+        "downsample_ratio": 0.5,
+        "downsample_aniso": false,
+        "mask_apply": false,
+        "mask_ratio": 0.7,
+        "weighted_loss": false,
+        "weighted_loss_weight": [
+          0.1,
+          1.0
+        ]
+      }
+    }
+  },
+  "tta_flips": {
+    "_comment": "Flip-averaged inference (2^2 = 4 forward passes over H/W flips). Applies to the final evaluation and to sample_volume_during_training; never to training or validation loss. 'p' is unused by the 2D path.",
+    "enable": false,
+    "p": 0.5
+  },
+  "augmentations": {
+    "_comment": "Kornia 2D augmentation, rebuilt each epoch. Geometric transforms are drawn ONCE and shared by source/target/mask so the pair stays registered; erasing hits the input only; intensity_apply_to selects which side photometric jitter lands on ('source' | 'target' | 'both'). type='static' holds augmentation_prob fixed; 'dynamic' decays it linearly to 0 at epoch 'till', after which augmentation is off entirely.",
+    "apply": false,
+    "type": "dynamic",
+    "available_types": [
+      "static",
+      "dynamic"
+    ],
+    "till": 3,
+    "augmentation_prob": 0.5,
+    "rotation_degrees": 15.0,
+    "affine": false,
+    "random_erasing": false,
+    "erasing_scale": [
+      0.02,
+      0.5
+    ],
+    "erasing_ratio": [
+      0.3,
+      3.3
+    ],
+    "brightness": 0.2,
+    "contrast": 0.5,
+    "gaussian_noise": false,
+    "noise_std": 0.05,
+    "gaussian_blur": false,
+    "intensity_apply_to": "target"
+  },
+  "loss": {
+    "_comment": "types entries are [name, weight] or [name, weight, {constructor kwargs}]. A name must also appear in 'available' or compile_loss_fn raises. Use wavelet2D (not wavelet3D) for the slice pipeline. synth_seg_path is only read when 'SynthSeg' is active.",
+    "types": [
+      [
+        "L1",
+        1.0
+      ]
+    ],
+    "available": [
+      "L1",
+      "L2",
+      "SynthSeg",
+      "wavelet2D",
+      "wavelet3D",
+      "DiffusionLoss",
+      "lpips_alex_2d_lpips_true",
+      "lpips_alex_2d_lpips_false",
+      "Resnet50_medicalNet_Perceptual"
+    ],
+    "synth_seg_path": "pl_models/models/synthseg/synthseg_2.0_pytorch.pt"
+  },
+  "evaluation": {
+    "_comment": "ground_truth_norm 'slicify' rebuilds the reference volume exactly the way patchify/slicify/slicify_nii.py built the cached target slices (mask, then a single global min-max) - this is what the model was trained against. 'percentile' is the legacy load_and_normalize_slices path and reads intensity_augmentations. slicify_percentile_clip must mirror the (currently commented-out) 0.995 clamp in slicify_nii.py; null = no clamp. weights_dir points evaluation at another run's checkpoint folder ('{split}' is replaced by the split index); null = this experiment's own.",
+    "ground_truth_norm": "slicify",
+    "slicify_percentile_clip": null,
+    "weights_dir": null
+  },
+  "fine_tunning": {
+    "_comment": "Slice-pipeline weight init. pretrain_evaluate_only=true (with pretrain_boolean=true) forces epochs to 0, makes every subject a test subject, skips caching train/val slices, and scores pretrained_model_weight directly. Accepts bare state dicts and full training-state checkpoints.",
+    "pretrain_boolean": false,
+    "pretrain_evaluate_only": false,
+    "pretrained_model_weight": ""
+  },
+  "finetunning": {
+    "_comment": "Patch-pipeline spelling of the same thing; applied after fine_tunning, so it wins if both are set. Weights only - no optimizer/scheduler state.",
+    "do": false,
+    "weight_path": ""
+  },
+  "resume_training": {
+    "_comment": "Full-state resume: model, optimizer, scheduler, GradScaler, torch/cuda/python RNG and the split index. Requires a checkpoint written by the current LightningStyleCheckpoint (old bare state dicts are rejected). Training restarts at the stored epoch and splits before the stored split are skipped.",
+    "do": false,
+    "weight_path": ""
+  },
+  "resume_from_sample": {
+    "_comment": "Coarser skip: jump straight to split 'index' without loading anything. Also switches the average-metrics CSV to append mode.",
+    "do": false,
+    "index": 0
+  },
+  "sample_volume_during_training": {
+    "do": true,
+    "every": 3
+  },
+  "percision": {
+    "full": true
+  },
+  "scheduler": false,
+  "only_evaluate_weigths_with": null,
+  "training": {
+    "_comment": "Optimizer: 'adam' or 'adamw' (default). lr_schedule.apply gates the scheduler entirely (false = constant learning_rate; it must gate construction, since LambdaLR's ctor performs an initial step()). When on, the LR schedule is a per-optimizer-step linear warmup over warmup_percentage_steps of total steps, optionally multiplied by a StepLR-style epoch decay - both folded into one LambdaLR so the checkpoint round-trips a single scheduler object. Gradients are clipped at max_norm=1.0. splits.num_test_samples sets the split size (num_splits = len(subjects) // num_test_samples); single_pass=true stops after split 0. mono_channel, num_workers, save_generation, scheduler: (unused).",
+    "epochs": 100,
+    "batch_size": 8,
+    "learning_rate": 0.0004,
+    "weight_decay": 0.0001,
+    "optimizer": "adamw",
+    "warmup_percentage_steps": 0.0,
+    "lr_schedule": {
+      "apply": false,
+      "step_decay": {
+        "apply": false,
+        "step_size_epochs": 10,
+        "gamma": 0.5
+      }
+    },
+    "scheduler": "linear_warmup",
+    "mono_channel": false,
+    "num_workers": 4,
+    "save_generation": true,
+    "splits": {
+      "validation_samples": 0,
+      "num_test_samples": 1,
+      "single_pass": false
+    }
+  },
+  "checkpoint": {
+    "_comment": "Two callbacks share this dir: top-k on val_loss and top-k on train_loss, both plus a periodic save. Files land as topk<monitor>_epoch=NN.pt and saveEvery_epoch_epoch=NN.pt, and every one of them is scored at the end. top_k=0 disables the heap and keeps only the periodic saves. save_dir, monitor, mode, filename_template: (unused - the driver hardcodes logs/<exp>/checkpoints/<split> and the monitors).",
+    "top_k": 1,
+    "save_every_n_epochs": 25,
+    "save_dir": "./checkpoints",
+    "monitor": "val_loss",
+    "mode": "min",
+    "filename_template": "epoch={epoch:02d}-{monitor}={score:.4f}.pt"
+  },
+  "patch_inference": {
+    "_comment": "(unused) 3D patch-pipeline aggregation settings, kept so this file matches its siblings.",
+    "inference_batch_size": 1,
+    "sampler_overlap_percentage": 0.125,
+    "batch_size": 1,
+    "smoothening_method": "haan",
+    "available_smoothening_methods": [
+      "haan"
+    ]
+  },
+  "device": {
+    "_comment": "devices[0] is the single device everything runs on. cache_stratergy 'same_gpu' caches every slice tensor on that GPU up front (fastest, VRAM-hungry); anything else moves batches per step. accelerator, benchmark, strategy, cache_device_available: (unused).",
+    "devices": [
+      "cuda:0"
+    ],
+    "cache_stratergy": "ram",
+    "cache_device_available": [
+      "ram",
+      "same_gpu",
+      "none"
+    ],
+    "accelerator": "auto",
+    "benchmark": false,
+    "strategy": "auto"
+  }
+}

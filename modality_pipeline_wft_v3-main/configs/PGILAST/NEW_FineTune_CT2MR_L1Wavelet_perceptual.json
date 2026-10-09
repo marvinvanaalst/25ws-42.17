@@ -1,0 +1,184 @@
+{
+    "Project_Name": "MRIxFields",
+    "experiment_name": "PGI_NEW_FineTune_CT2MR_L1_Perceptual_Wavelet_TTA",
+    "model_info": {
+        "name": "3DUNET",
+        "path": "pl_models/models/ESAU_3D_transformer_like.py",
+        "model_class": "ESAU_3D",
+        "modelType": "pre_computed_patch2patch",
+        "possibleTypes": [
+            "vol2vol",
+            "patch2patch",
+            "2DImage",
+            "2.5DImage",
+            "pre_computed_patch2patch",
+            "pre_computed_slice2slice"
+        ],
+        "pretrained": "True"
+    },
+    "intensity_augmentations":{
+        "mri_intensity_percentile": [0,100]
+    },
+    "data": {
+        "direction": {
+            "source": "ct",
+            "target": "mr",
+            "mask_dir_name": "mask"
+        },
+        "training": {
+            "subjects_path": "/home/ig/Datasets/pipeline/data/230patds/ftw_Compliant",
+            "subjects": [
+"016UE", "021ZQ", "023MT", "027YS", "028KJ", "033CZ", "035CL", "042QE", "044BG", "052SA", "057YZ", "059LT", "062DF", "065BY", "066LP", "075IB", "075SP", "077FI", "079MN", "081MW", "083AF", "085VE", "087IU", "088EB", "089IV", "100SH", "100TP", "102LP", "102NP", "115PB", "121IZ", "121UY", "126UQ", "133LP", "135KU", "136UY", "153MI", "160OC", "163YL", "169FT", "172KF", "172ZR", "188RG", "192HL", "201LI", "205MI", "212KQ", "218OE", "230UV", "234LD", "235FP", "235ZI", "239BY", "239HC", "240QR", "244IU", "258EJ", "267ZX", "268XS", "269DZ", "272QP", "289IH", "291FM", "295ND", "296KU", "299GE", "299OH", "300RU", "306PQ", "309JE", "313LS", "315QO", "315TW", "319HT", "321EJ", "324XZ", "329GC", "330VR", "332YT", "345DR", "345RL", "346EK", "349YJ", "360BQ", "362UJ", "363NC", "366PO", "391TQ", "396EH", "403RE", "403YY", "406TN", "412BU", "417YI", "418LU", "420VQ", "430SD", "437OQ", "445SQ", "445SX", "445TN", "455XG", "457TJ", "460EV", "463WR", "492WW", "508AD", "510JO", "516SB", "517ID", "520ZJ", "534EU", "537EP", "537RJ", "543ZG", "545UI", "548RY", "555XG", "557GC", "558ZO", "559PO", "564GK", "572RD", "580IK", "580UC", "581JB", "591DQ", "594GQ", "597CX", "600GQ", "605DV", "611GL", "612EY", "612WN", "616IH", "622HF", "622YY", "626UV", "631JG", "640EU", "643JS", "645EK", "668XT", "671ET", "678YP", "680VY", "680WM", "680YQ", "682ZX", "698ZO", "701CY", "702DZ", "703MN", "711TQ", "712OL", "718DX", "721XQ", "730PQ", "731HS", "742BG", "746JC", "750RU", "751KV", "753EK", "754DP", "760CU", "764UI", "771XE", "779YV", "787DW", "791ZU", "797ZU", "805FO", "805RY", "813SC", "824YO", "827IG", "829RR", "833VE", "844AL", "849KG", "865IL", "866UQ", "867FH", "868JS", "873MU", "875QV", "879FG", "881FK", "899WQ", "906RN", "909NT", "911ML", "911MW", "922MH", "927ZN", "933EF", "934DF", "934XP", "939QU", "945OX", "952DJ", "958UD", "962AT", "963NZ", "963UQ", "968QD", "971GG", "976NP", "978GC", "988KL", "993OP", "994HV", "996DT"
+            ]
+        },
+        "slice_axis": 2
+    },
+    "pretrain_augments":{
+        "block_augments":{
+            "apply": false,
+            "config":{
+                    "block":[8, 8, 8],
+
+                    "gin_apply" : false,
+                    "gin_lam_max" : 1, 
+                    "gin_conserve_enegry": true,
+
+                    "downsample_apply": false,
+                    "downsample_factors": [2,4],
+                    "downsample_ratio": 0.5,
+                    
+                    "mask_apply": true,
+                    "mask_ratio" : 0.7
+                    }
+        },
+        "pre_post_norm": {
+            "info" : "Making sure source distribution is parametric. Emperical Obvs(mean sucks)",
+            "apply" : false,
+            "type"  : "minmax",
+            "available": ["mean", "median", "minmax" , "log", "power"]
+        }
+    },
+    "tta_flips":{
+        "enable": true,
+        "p": 0.5
+    },
+    "augmentations":{
+        "apply" : false,
+        "till": 80,
+        "augmentation_prob": 0.9,
+        "type": "dynamic",
+        "available_types": ["static", "dynamic"]
+    },
+    "model": {
+        "in_channels":1,
+        "out_channels":1,
+        "n_channels":32,
+        "num_heads":[1,2,4,8],
+        "res":true,
+        "activation":true,
+        "interpolation":"Conv"
+    },
+
+    "loss": {
+        "types": [
+            [
+                "L1",
+                1.0
+            ],[
+                "Resnet50_medicalNet_Perceptual",
+                0.001
+            ],["wavelet3D",
+            0.1,
+            {"levels":3,
+             "w_lf":1.0, 
+             "w_hf" :4.0, 
+             "wavelet" : "db4", 
+             "mode": "symmetric"} 
+            
+        ]
+        ],
+        "available": [
+            "L1",
+            "L2",
+            "SynthSeg",
+            "lpips_alex_2d",
+            "wavelet3D",
+            "Resnet50_medicalNet_Perceptual"
+        ],
+        "synth_seg_path": "pl_models/models/synthseg/synthseg_2.0_pytorch.pt"
+    },
+    "slicify":{
+        "pad_boolean": true,
+        "pad_to" : 608,
+        "resize_to" : 512
+    },
+    "patchify":{
+        "patch_size": 64,
+        "patch_overlap": 8
+    },
+    "fine_tunning":{
+        "pretrain_boolean": false,
+        "pretrain_evaluate_only": false,
+        "data_foldsvvv": 5,
+        "pretrained_model_weight": ""
+    }, 
+    "training": {
+        "mono_channel": false,
+        "epochs": 150,
+        "warmup_percentage_steps": 0.1, 
+        "batch_size": 16,
+        "num_workers": 4,
+        "samples_per_sample": 7,
+        "weight_decay": 1e-02,
+        "learning_rate": 0.0001,
+        "optimizer": "adam",
+        "scheduler": "SingleCycleCosine",
+        "cosine_restart_after": 20,
+        "loss_function": "cross_entropy",
+        "save_generation": true,
+        "splits":{
+            "validation_samples" :  1,
+            "num_test_samples" : 10,
+            "single_pass": true
+        }
+    },
+        "sample_volume_during_training":{
+        "do": true,
+        "every" : 1
+    },
+        "checkpoint": {
+        "save_dir": "./checkpoints",
+        "monitor": "val_ssim",
+        "mode": "max",
+        "top_k": 1,
+        "save_every_n_epochs": 25,
+        "filename_template": "epoch={epoch:02d}-{monitor}={score:.4f}.pt"
+    },
+    "patch_inference": {
+        "inference_batch_size": 1,
+        "sampler_overlap_percentage": 0.125,
+        "batch_size": 1,
+        "smoothening_method": "haan",
+        "available_smoothening_methods": [
+            "haan"
+        ]
+    },
+    "device": {
+        "accelerator": "auto",
+        "devices": [
+            "cuda:1"
+        ],
+        "cache_stratergy": "none",
+        "cache_device_available": ["ram", "same_gpu", "none"],
+        "benchmark": false,
+        "strategy": "auto"
+    },
+    "resume_from_sample": {
+        "do": false,
+        "index": 8
+    },
+    "finetunning":{
+        "do": false,
+        "weight_path" : "/home/ig/works/modality_pipeline_wft_v3/logs/PGIPANCREATIC_Pre-train_TTA_L1dw4Wavelet3DESAU/checkpoints/0/saveEvery_epoch_epoch=200.pt"
+    }
+}

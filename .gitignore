@@ -13,3 +13,7 @@ wheels/
 # temporary folders
 tmp/
 temp/
+
+10_Pat_t1-20260830T152711Z-1-001/
+*.pt
+*.nii.gz

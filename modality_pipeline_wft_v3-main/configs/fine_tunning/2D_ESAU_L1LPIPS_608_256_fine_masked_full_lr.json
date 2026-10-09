@@ -1,0 +1,156 @@
+{
+    "Project_Name": "PGI_CT2MR",
+    "experiment_name": "2D_ESAU_L1LPIPS_608_256_finetune_masked_full_lr",
+    "model_info": {
+        "name": "3DUNET",
+        "path": "pl_models/models/ESAU_net.py",
+        "model_class": "ESAU",
+        "modelType": "pre_computed_slice2slice",
+        "possibleTypes": [
+            "vol2vol",
+            "patch2patch",
+            "2DImage",
+            "2.5DImage",
+            "pre_computed_patch2patch",
+            "pre_computed_slice2slice"
+        ]
+        },
+    "data": {
+        "direction": {
+            "source": "CT",
+            "target": "MRI",
+            "mask_dir_name": "MASK"
+        },
+        "training": {
+            "subjects_path": "/storage/an_inam/PGI_data/opusCompliant",
+            "subjects": [
+                "AJAY.nii.gz",
+                "AKSHAY.nii.gz",
+                "ARUN.nii.gz",
+                "ASHWANI.nii.gz",
+                "BALWINDER.nii.gz",
+                "CHETAN.nii.gz",
+                "HARSHARAN.nii.gz",
+                "KHUSHDEEP.nii.gz",
+                "KULDEEP.nii.gz",
+                "KULWANT.nii.gz",
+                "MAHINDER.nii.gz",
+                "MALTI.nii.gz",
+                "MANESH.nii.gz",
+                "MANNAT.nii.gz",
+                "MEENA.nii.gz",
+                "NITIN.nii.gz",
+                "PANKAJ.nii.gz",
+                "PARAMJIT.nii.gz",
+                "PARMINDER.nii.gz",
+                "PATRAS.nii.gz",
+                "RAJIV.nii.gz",
+                "RAKESH.nii.gz",
+                "RAVINDER.nii.gz",
+                "RENU.nii.gz",
+                "RESHMA.nii.gz",
+                "SANJIT.nii.gz",
+                "SHUBHAM.nii.gz",
+                "SHUBHANKAR.nii.gz",
+                "SUKHWANT.nii.gz",
+                "SUMIT.nii.gz",
+                "SUNIL.nii.gz",
+                "TARA.nii.gz",
+                "VED.nii.gz",
+                "VEENA.nii.gz",
+                "VIKAS.nii.gz",
+                "VIKRAM.nii.gz"
+            ]
+        },
+        "slice_axis": 2
+    },
+    "model": {
+        "in_channels": 1,
+        "out_channels": 1,
+        "n_channels": 32,
+        "num_heads": [
+            1,
+            2,
+            4,
+            8
+        ],
+        "res": true
+    },
+    "checkpoint": {
+        "save_dir": "./checkpoints",
+        "monitor": "val_ssim",
+        "mode": "max",
+        "top_k": 0,
+        "save_every_n_epochs": 100,
+        "filename_template": "epoch={epoch:02d}-{monitor}={score:.4f}.pt"
+    },
+    "fine_tunning":{
+        "pretrain_boolean": true,
+        "pretrain_evaluate_only": false,
+        "data_folds": 5,
+        "pretrained_model_weight": "/storage/an_inam/CT2MR/CustomPipelineV2/logs/2D_ESAU_L1LPIPS_608_256/checkpoints/0/topkval_loss_65-val_loss=0.0293.pt"
+    },
+    "loss": {
+        "types": [
+            [
+                "L1",
+                1.0
+            ],
+            [
+                "lpips_alex_2d",
+                0.2
+            ]
+        ],
+        "available": [
+            "L1",
+            "L2",
+            "SynthSeg",
+            "lpips_alex_2d"
+        ],
+        "synth_seg_path": "pl_models/models/synthseg/synthseg_2.0_pytorch.pt"
+    },
+    "slicify": {
+        "pad_to": 608,
+        "resize_to": 256,
+        "info": "Change slice size below as well, will reflect in folder name"
+    },
+    "training": {
+        "mono_channel": false,
+        "epochs": 100,
+        "batch_size": 32,
+        "num_workers": 4,
+        "patch_size": 64,
+        "change_slice_size": false,
+        "slice_size": 256,
+        "patch_overlap": 8,
+        "samples_per_sample": 7,
+        "weight_decay": 1e-05,
+        "learning_rate": 0.001,
+        "optimizer": "adam",
+        "scheduler": "SingleCycleCosine",
+        "cosine_restart_after": 20,
+        "loss_function": "cross_entropy",
+        "save_generation": true
+    },
+    "patch_inference": {
+        "inference_batch_size": 1,
+        "sampler_overlap_percentage": 0.125,
+        "batch_size": 1,
+        "smoothening_method": "crop",
+        "available_smoothening_methods": [
+            "haan"
+        ]
+    },
+    "device": {
+        "accelerator": "auto",
+        "devices": [
+            "cuda:2"
+        ],
+        "benchmark": false,
+        "strategy": "auto"
+    },
+    "resume_from_sample": {
+        "do": false,
+        "index": 0
+    }
+}

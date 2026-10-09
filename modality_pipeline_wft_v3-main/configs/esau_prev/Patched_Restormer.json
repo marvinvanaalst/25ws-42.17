@@ -1,0 +1,55 @@
+{
+    "experiment_name": "restormer_patched_more_heads",
+    "model_info": {
+        "name": "3DUNET",
+        "path": "pl_models/models/restormer.py",
+        "model_class": "Restormer",
+        "modelType": "patch2patch",
+        "possibleTypes": ["vol2vol", "patch2patch", "2DImage", "2.5DImage"],
+
+        "pretrained": "True",
+        "weight_path" : "models/3DSwin/weights.pth"
+    },
+    "model": {
+        "inp_channels":48, 
+        "out_channels":48
+    },
+    "checkpoint":{
+        "save_frequency_epoch": 5,
+        "save_topk": 1,
+        "monitor": "val_loss",
+        "dirpath": "checkpoints/",
+        "filename": "{epoch}-{step}-{val_loss:.8f}"
+    },
+    "loss":{
+        "name": "L1"
+    },
+    "training": {
+        "mono_channel": false,
+        "epochs": 500,
+        "batch_size": 40,
+        "num_workers": 32,
+        "patch_size": [48, 48, 48],
+        "samples_per_sample": 7,
+        "learning_rate": 0.001,
+        "optimizer": "adam",
+        "scheduler": "SingleCycleCosine",
+        "cosine_restart_after": 20,
+        "loss_function": "cross_entropy",
+        "save_generation" : true
+    },
+    "patch_inference":{
+        "inference_batch_size": 1,
+        "sampler_overlap_percentage": 0.50,
+        "batch_size": 1,
+        "smoothening_method": "gaussian",
+        "available_smoothening_methods": ["gaussian", "hann", "constant"]
+    },
+    "device":{
+        "accelerator": "auto",
+        "devices": [7],
+        "benchmark": false,
+        "strategy": "ddp"
+    }
+    
+}

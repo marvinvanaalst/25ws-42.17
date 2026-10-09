@@ -1,0 +1,26 @@
+{
+    "data": {
+        "dataset_name" : "10_pat_T1_MRI",
+        "direction": {
+            "source": "3T_7TReg",
+            "target": "7T",
+            "mask_dir_name": "MASK3T_7TReg"
+        },
+        "training": {
+            "subjects_path": "/storage/an_inam/MR2MR/Data/10_Pat_t1",
+            "subjects": [
+                "sub-01_T1w.nii.gz",
+                "sub-02_T1w.nii.gz",
+                "sub-03_T1w.nii.gz",
+                "sub-04_T1w.nii.gz",
+                "sub-05_T1w.nii.gz",
+                "sub-06_T1w.nii.gz",
+                "sub-07_T1w.nii.gz",
+                "sub-08_T1w.nii.gz",
+                "sub-09_T1w.nii.gz",
+                "sub-10_T1w.nii.gz"
+            ]
+        },
+        "slice_axis": 2
+    }
+}

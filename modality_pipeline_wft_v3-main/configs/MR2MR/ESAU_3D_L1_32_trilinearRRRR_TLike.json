@@ -1,0 +1,138 @@
+{
+    "Project_Name": "Structural_MRI_Enhancement",
+    "experiment_name": "30_ESAU_3D_L1_32_trilinear_TRANSFORMERLIKE",
+    "model_info": {
+        "name": "3DUNET",
+        "path": "pl_models/models/ESAU_3D_transformer_like.py",
+        "model_class": "ESAU_3D",
+        "modelType": "pre_computed_patch2patch",
+        "possibleTypes": [
+            "vol2vol",
+            "patch2patch",
+            "2DImage",
+            "2.5DImage",
+            "pre_computed_patch2patch",
+            "pre_computed_slice2slice"
+        ],
+        "pretrained": "True"
+    },
+    "data": {
+        "direction": {
+            "source": "3T_7TReg",
+            "target": "7T",
+            "mask_dir_name": "MASK3T_7TReg"
+        },
+        "training": {
+            "subjects_path": "/storage/an_inam/MR2MR/Data/10_Pat_t1",
+            "subjects": [
+                "sub-01_T1w.nii.gz",
+                "sub-02_T1w.nii.gz",
+                "sub-03_T1w.nii.gz",
+                "sub-04_T1w.nii.gz",
+                "sub-05_T1w.nii.gz",
+                "sub-06_T1w.nii.gz",
+                "sub-07_T1w.nii.gz",
+                "sub-08_T1w.nii.gz",
+                "sub-09_T1w.nii.gz",
+                "sub-10_T1w.nii.gz"
+            ]
+        },
+        "slice_axis": 2
+    },
+    "augmentations":{
+        "apply" : false,
+        "till": 80,
+        "augmentation_prob": 0.9,
+        "type": "dynamic",
+        "available_types": ["static", "dynamic"]
+    },
+    "model": {
+        "in_channels":1,
+        "out_channels":1,
+        "n_channels":32,
+        "num_heads":[1,2,4,8],
+        "res":true,
+        "activation":true,
+        "interpolation":"trilinear"
+    },
+    "checkpoint": {
+        "save_dir": "./checkpoints",
+        "monitor": "val_ssim",
+        "mode": "max",
+        "top_k": 1,
+        "save_every_n_epochs": 150,
+        "filename_template": "epoch={epoch:02d}-{monitor}={score:.4f}.pt"
+    },
+    "loss": {
+        "types": [
+            [
+                "L1",
+                1.0
+            ]
+        ],
+        "available": [
+            "L1",
+            "L2",
+            "SynthSeg",
+            "lpips_alex_2d"
+        ],
+        "synth_seg_path": "pl_models/models/synthseg/synthseg_2.0_pytorch.pt"
+    },
+    "slicify":{
+        "pad_boolean": true,
+        "pad_to" : 608,
+        "resize_to" : 512
+    },
+    "patchify":{
+        "patch_size": 64,
+        "patch_overlap": 8
+    },
+    "fine_tunning":{
+        "pretrain_boolean": false,
+        "pretrain_evaluate_only": false,
+        "data_foldsvvv": 5,
+        "pretrained_model_weight": ""
+    }, 
+    "training": {
+        "mono_channel": false,
+        "epochs": 300,
+        "warmup_percentage_steps": 0.05, 
+        "batch_size": 16,
+        "num_workers": 4,
+        "samples_per_sample": 7,
+        "weight_decay": 1e-02,
+        "learning_rate": 0.0002,
+        "optimizer": "adam",
+        "scheduler": "SingleCycleCosine",
+        "cosine_restart_after": 20,
+        "loss_function": "cross_entropy",
+        "save_generation": true,
+        "splits":{
+            "validation_samples" :  0,
+            "num_test_samples" : 1,
+            "single_pass": false
+
+        }
+    },
+    "patch_inference": {
+        "inference_batch_size": 1,
+        "sampler_overlap_percentage": 0.125,
+        "batch_size": 1,
+        "smoothening_method": "haan",
+        "available_smoothening_methods": [
+            "haan"
+        ]
+    },
+    "device": {
+        "accelerator": "auto",
+        "devices": [
+            "cuda:1"
+        ],
+        "benchmark": false,
+        "strategy": "auto"
+    },
+    "resume_from_sample": {
+        "do": false,
+        "index": 0
+    }
+}
