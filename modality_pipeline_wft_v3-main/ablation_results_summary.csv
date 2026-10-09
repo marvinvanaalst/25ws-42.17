@@ -1,0 +1,16 @@
+Rank,Key,Label,Category,LossFormula,PSNR,PSNR_Std,SSIM,SSIM_Std,Delta_vs_L1,Status
+1,exp14_fft_l1,Exp 14: FFT Focal Frequency + L1,Frequency Spectrum,L1 + 0.3*FocalFreq,32.6797176361084,0.9378361067397761,0.9375562101602555,0.005197227593668319,+0.07,COMPLETED
+2,exp06_l1_baseline,Exp 6: L1 Baseline,Baseline,L1,32.61,0.0,0.91,0.0,0.0,COMPLETED (Baseline)
+3,exp07_haar_wavelet,Exp 7: Haar Wavelet (WFT),Wavelet,Haar Wavelet L1 (LL + 2*Det),30.8,0.0,0.9,0.0,-1.81,COMPLETED (Exp 7)
+4,exp10_msssim_l1,Exp 10: MS-SSIM + L1,Multi-Scale,0.84*L1 + 0.16*(1-MS-SSIM),16.056344985961914,2.7151487224872475,0.6795180097222329,0.0062478462851430295,-16.55,COMPLETED
+5,exp19_msssim_contrast,Exp 19: MS-SSIM + Contrast,Compound,0.84*L1 + 0.08*(1-MSSSIM) + 0.08*Contrast,15.81393654346466,2.62938984192777,0.6813138708472252,0.011104931493996755,-16.80,COMPLETED
+6,exp13_contrast_l1,Exp 13: Local Contrast + L1,Tissue Contrast,L1 + 0.5*LocalStdL1,15.560010933876038,2.589037211347797,0.6753608033061027,0.005975388368374898,-17.05,COMPLETED
+7,exp09_ssim_only,Exp 9: SSIM Loss,Structural,1 - SSIM,15.37663459777832,3.5591361968157935,0.678878003358841,0.013642928658529866,-17.23,COMPLETED
+,exp11_sobel_l1,Exp 11: Sobel Gradient + L1,Edge Sharpness,L1 + 0.5*SobelGrad,,0.0,,0.0,,RUNNING / QUEUED
+,exp12_db2_l1,Exp 12: Daubechies db2 Wavelet + L1,Wavelet (Novel),L1 + 0.5*Db2WaveletL1,,0.0,,0.0,,RUNNING / QUEUED
+,exp15_haar_sobel_l1,Exp 15: Haar Wavelet + Sobel + L1,Compound,L1 + 0.5*HaarL1 + 0.3*Sobel,,0.0,,0.0,,RUNNING / QUEUED
+,exp16_db2_contrast_l1,Exp 16: Db2 Wavelet + Contrast + L1,Compound,L1 + 0.5*Db2L1 + 0.5*LocalStd,,0.0,,0.0,,RUNNING / QUEUED
+,exp17_db2_sobel_l1,Exp 17: Db2 Wavelet + Sobel + L1,Compound,L1 + 0.5*Db2L1 + 0.3*Sobel,,0.0,,0.0,,RUNNING / QUEUED
+,exp18_msssim_db2,Exp 18: MS-SSIM + Db2 Wavelet,Compound,0.84*Db2L1 + 0.16*(1-MS-SSIM),,0.0,,0.0,,RUNNING / QUEUED
+,exp20_db2_contrast_sobel_l1,Exp 20: Full Kitchen Sink,Compound,L1 + 0.5*Db2 + 0.3*Contrast + 0.2*Sobel,,0.0,,0.0,,RUNNING / QUEUED
+,exp21_fft_db2_l1,Exp 21: FFT + Db2 Wavelet + L1,Compound,L1 + 0.3*FFT + 0.5*Db2L1,,0.0,,0.0,,RUNNING / QUEUED

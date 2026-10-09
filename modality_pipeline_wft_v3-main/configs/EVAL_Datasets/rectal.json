@@ -1,0 +1,26 @@
+{
+    "data": {
+        "dataset_name" : "rectal512",
+        "direction": {
+            "source": "CT",
+            "target": "MR",
+            "mask_dir_name": "MASK"
+        },
+        "training": {
+            "subjects_path": "/storage/an_inam/PGI_Project/ZZZ_Fin_uniform/rectal512",
+            "subjects": [
+                "anuradha.nii.gz",
+                "baljeetsingh.nii.gz",
+                "deenmauhmmad.nii.gz",
+                "noori.nii.gz",
+                "nutan.nii.gz",
+                "radhikaverma.nii.gz",
+                "sandeepa.nii.gz",
+                "santram.nii.gz",
+                "simarjeetsingh.nii.gz",
+                "vijay.nii.gz"
+            ]
+        },
+        "slice_axis": 2
+    }
+}

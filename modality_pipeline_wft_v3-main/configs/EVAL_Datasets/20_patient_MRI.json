@@ -1,0 +1,36 @@
+{
+    "data": {
+        "dataset_name" : "20_Patient_T1_MRI",
+        "direction": {
+            "source": "3T",
+            "target": "7T",
+            "mask_dir_name": "MASKS"
+        },
+        "training": {
+            "subjects_path": "/storage/an_inam/MR2MR/Data/20_pat_t1/",
+            "subjects": [
+            "sub-01.nii.gz",
+            "sub-02.nii.gz",
+            "sub-03.nii.gz",
+            "sub-04.nii.gz",
+            "sub-05.nii.gz",
+            "sub-06.nii.gz",
+            "sub-07.nii.gz",
+            "sub-08.nii.gz",
+            "sub-09.nii.gz",
+            "sub-10.nii.gz",
+            "sub-11.nii.gz",
+            "sub-12.nii.gz",
+            "sub-13.nii.gz",
+            "sub-14.nii.gz",
+            "sub-15.nii.gz",
+            "sub-16.nii.gz",
+            "sub-17.nii.gz",
+            "sub-18.nii.gz",
+            "sub-19.nii.gz",
+            "sub-20.nii.gz"
+            ]
+        },
+        "slice_axis": 2
+    }
+}

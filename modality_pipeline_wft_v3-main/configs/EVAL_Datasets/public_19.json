@@ -1,0 +1,35 @@
+{
+    "data": {
+        "dataset_name" : "19_patient",
+        "direction": {
+            "source": "CT",
+            "target": "MR",
+            "mask_dir_name": "MASK"
+        },
+        "training": {
+            "subjects_path": "/storage/an_inam/PGI_Project/Original_Shape_Data/Public19ResampledJSON",
+            "subjects": [
+                "1_01_P.nii.gz",
+                "1_02_P.nii.gz",
+                "1_03_P.nii.gz",
+                "1_04_P.nii.gz",
+                "1_05_P.nii.gz",
+                "1_06_P.nii.gz",
+                "1_07_P.nii.gz",
+                "1_08_P.nii.gz",
+                "2_03_P.nii.gz",
+                "2_04_P.nii.gz",
+                "2_05_P.nii.gz",
+                "2_06_P.nii.gz",
+                "2_09_P.nii.gz",
+                "2_10_P.nii.gz",
+                "2_11_P.nii.gz",
+                "3_01_P.nii.gz",
+                "3_02_P.nii.gz",
+                "3_03_P.nii.gz",
+                "3_04_P.nii.gz"
+            ]
+        },
+        "slice_axis": 2
+    }
+}

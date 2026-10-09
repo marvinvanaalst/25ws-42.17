@@ -1,0 +1,7 @@
+{
+  "patch_size": [64, 64, 64],
+  "patch_overlap": [8, 8, 8],
+  "source_dir": "/Drive4T/inam/MRMRData/T1/mask",
+  "dest_dir": "/Drive4T/inam/3T_7T_Synthesis/masks_patches",
+  "resample_spacing_unused": [1.0, 1.0, 1.0]
+}

@@ -1,0 +1,41 @@
+{
+    "experiment_name": "Restormer_Cabonier_CLR",
+    "model_info": {
+        "name": "3DUNET",
+        "path": "pl_models/models/restormer.py",
+        "model_class": "Restormer",
+        "modelType": "vol2vol",
+        "possibleTypes": ["vol2vol", "3DPatch", "2DImage", "2.5DImage"],
+
+        "pretrained": "True",
+        "weight_path" : "models/3DSwin/weights.pth"
+    },
+    "model": {
+        "inp_channels":256, 
+        "out_channels":256
+    },
+    "checkpoint":{
+        "save_frequency_epoch": 5,
+        "save_topk": 3,
+        "monitor": "val_loss",
+        "dirpath": "checkpoints/",
+        "filename": "{epoch}-{step}-{val_loss:.8f}"
+    },
+    "loss":{
+        "name": "restormerCabonier",
+        "possible_types": {
+            "written": ["L1", "restormerCabonier"]
+        }
+    },
+    "training": {
+        "mono_channel": false,
+        "epochs": 1500,
+        "batch_size": 1,
+        "num_workers": 4,
+        "learning_rate": 0.001,
+        "optimizer": "adam",
+        "scheduler": "SingleCycleCosine",
+        "cosine_restart_after": 20,
+        "loss_function": "cross_entropy"
+    }
+}

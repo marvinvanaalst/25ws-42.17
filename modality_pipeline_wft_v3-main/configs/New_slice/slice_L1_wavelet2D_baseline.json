@@ -1,0 +1,273 @@
+{
+    "_comment": "Working baseline for master_half_slice_new.py (pre_computed_slice2slice). CT -> MR, axis-2 slices, pad 448 -> resize 256. All augment blocks are present and wired; the pretrain block augments are off here, see slice_GIN_MASK_pretrain.json for them switched on.",
+    "Project_Name": "New_Slice_Pipeline",
+    "experiment_name": "NEWSLICE_CT2MR_ESAU2D_L1_Wavelet2D",
+    "model_info": {
+        "name": "ESAU2D",
+        "path": "pl_models/models/ESAU_net.py",
+        "model_class": "ESAU",
+        "modelType": "pre_computed_slice2slice",
+        "single_channel_model": false,
+        "possibleTypes": [
+            "vol2vol",
+            "patch2patch",
+            "2DImage",
+            "2.5DImage",
+            "pre_computed_patch2patch",
+            "pre_computed_slice2slice"
+        ],
+        "pretrained": "False"
+    },
+    "model": {
+        "in_channels": 1,
+        "out_channels": 1,
+        "n_channels": 32,
+        "num_heads": [
+            1,
+            2,
+            4,
+            8
+        ],
+        "res": true
+    },
+    "seed": {
+        "apply": false,
+        "value": 42
+    },
+    "prompts": {
+        "confirm_overwrite": true
+    },
+    "intensity_augmentations": {
+        "_comment": "Only consumed by evaluation.ground_truth_norm == 'percentile'.",
+        "mri_intensity_percentile": [
+            0,
+            100
+        ]
+    },
+    "data": {
+        "direction": {
+            "source": "ct",
+            "target": "mr",
+            "mask_dir_name": "mask"
+        },
+        "training": {
+            "subjects_path": "/home/ig/Datasets/pipeline/data/230patds/ftw_Compliant",
+            "subjects": [
+                "016UE.nii.gz",
+                "021ZQ.nii.gz",
+                "023MT.nii.gz",
+                "027YS.nii.gz",
+                "028KJ.nii.gz",
+                "033CZ.nii.gz",
+                "035CL.nii.gz",
+                "042QE.nii.gz",
+                "044BG.nii.gz",
+                "052SA.nii.gz",
+                "057YZ.nii.gz",
+                "059LT.nii.gz",
+                "062DF.nii.gz",
+                "065BY.nii.gz",
+                "066LP.nii.gz",
+                "070OZ.nii.gz",
+                "075IB.nii.gz",
+                "075SP.nii.gz",
+                "077FI.nii.gz",
+                "079MN.nii.gz"
+            ]
+        },
+        "slice_axis": 2
+    },
+    "slicify": {
+        "_comment": "pad_to must be >= the largest in-plane dimension in the dataset AND >= resize_to. Dataset max in-plane here is 429 x 339.",
+        "pad_boolean": true,
+        "pad_to": 448,
+        "resize_to": 256
+    },
+    "pretrain_augments": {
+        "block_augments": {
+            "apply": false,
+            "config": {
+                "block": [
+                    8,
+                    8
+                ],
+                "gin_apply": false,
+                "gin_lam_max": 1,
+                "gin_conserve_enegry": true,
+                "downsample_apply": false,
+                "downsample_factors": [
+                    2,
+                    4
+                ],
+                "downsample_ratio": 0.5,
+                "downsample_aniso": false,
+                "mask_apply": false,
+                "mask_ratio": 0.7,
+                "weighted_loss": false,
+                "weighted_loss_weight": [
+                    0.1,
+                    1.0
+                ]
+            }
+        },
+        "pre_post_norm": {
+            "info": "Per-slice masked normalisation of the model input. denormalize_output maps the prediction back before metrics/saving.",
+            "apply": false,
+            "type": "minmax",
+            "denormalize_output": false,
+            "available": [
+                "mean",
+                "median",
+                "minmax",
+                "log",
+                "power"
+            ]
+        }
+    },
+    "tta_flips": {
+        "enable": false,
+        "p": 0.5
+    },
+    "augmentations": {
+        "_comment": "Kornia 2D augmentation. Geometric transforms are shared by source/target/mask; erasing hits the input only; intensity_apply_to selects the side photometric jitter lands on.",
+        "apply": true,
+        "type": "dynamic",
+        "available_types": [
+            "static",
+            "dynamic"
+        ],
+        "till": 80,
+        "augmentation_prob": 0.5,
+        "rotation_degrees": 15.0,
+        "affine": false,
+        "random_erasing": true,
+        "erasing_scale": [
+            0.02,
+            0.5
+        ],
+        "erasing_ratio": [
+            0.3,
+            3.3
+        ],
+        "brightness": 0.2,
+        "contrast": 0.5,
+        "gaussian_noise": false,
+        "noise_std": 0.05,
+        "gaussian_blur": false,
+        "intensity_apply_to": "target"
+    },
+    "loss": {
+        "types": [
+            [
+                "L1",
+                1.0
+            ],
+            [
+                "wavelet2D",
+                0.1,
+                {
+                    "levels": 2,
+                    "w_lf": 1.0,
+                    "w_hf": 4.0,
+                    "wavelet": "haar",
+                    "mode": "zero"
+                }
+            ]
+        ],
+        "available": [
+            "L1",
+            "L2",
+            "SynthSeg",
+            "wavelet2D",
+            "wavelet3D",
+            "lpips_alex_2d_lpips_true",
+            "lpips_alex_2d_lpips_false",
+            "Resnet50_medicalNet_Perceptual"
+        ],
+        "synth_seg_path": "pl_models/models/synthseg/synthseg_2.0_pytorch.pt"
+    },
+    "evaluation": {
+        "_comment": "ground_truth_norm 'slicify' rebuilds the reference volume exactly the way patchify/slicify/slicify_nii.py built the cached target slices. 'percentile' is the legacy load_and_normalize_slices path. slicify_percentile_clip must mirror the (currently commented-out) clamp in slicify_nii.py; null = no clamp. weights_dir (null = this experiment's own checkpoints) points evaluation at another run's checkpoint folder; '{split}' is replaced by the split index. In pretrain_evaluate_only mode with no checkpoints, fine_tunning.pretrained_model_weight is scored directly.",
+        "ground_truth_norm": "slicify",
+        "slicify_percentile_clip": null,
+        "weights_dir": null
+    },
+    "fine_tunning": {
+        "pretrain_boolean": false,
+        "pretrain_evaluate_only": false,
+        "pretrained_model_weight": ""
+    },
+    "finetunning": {
+        "do": false,
+        "weight_path": ""
+    },
+    "resume_training": {
+        "do": false,
+        "weight_path": ""
+    },
+    "resume_from_sample": {
+        "do": false,
+        "index": 0
+    },
+    "sample_volume_during_training": {
+        "_comment": "Reconstructs a full validation volume every N epochs into logs/<exp>/training_eval. Needs training.splits.validation_samples > 0.",
+        "do": true,
+        "every": 10
+    },
+    "only_evaluate_weigths_with": null,
+    "training": {
+        "mono_channel": false,
+        "epochs": 100,
+        "warmup_percentage_steps": 0.1,
+        "lr_schedule": {
+            "step_decay": {
+                "apply": false,
+                "step_size_epochs": 10,
+                "gamma": 0.5
+            }
+        },
+        "batch_size": 16,
+        "num_workers": 0,
+        "weight_decay": 1e-05,
+        "learning_rate": 0.0002,
+        "optimizer": "adamw",
+        "scheduler": "linear_warmup",
+        "save_generation": true,
+        "splits": {
+            "validation_samples": 2,
+            "num_test_samples": 1,
+            "single_pass": true
+        }
+    },
+    "checkpoint": {
+        "save_dir": "./checkpoints",
+        "monitor": "val_loss",
+        "mode": "min",
+        "top_k": 1,
+        "save_every_n_epochs": 25,
+        "filename_template": "epoch={epoch:02d}-{monitor}={score:.4f}.pt"
+    },
+    "patch_inference": {
+        "inference_batch_size": 1,
+        "sampler_overlap_percentage": 0.125,
+        "batch_size": 1,
+        "smoothening_method": "haan",
+        "available_smoothening_methods": [
+            "haan"
+        ]
+    },
+    "device": {
+        "accelerator": "auto",
+        "devices": [
+            "cuda:0"
+        ],
+        "cache_stratergy": "same_gpu",
+        "cache_device_available": [
+            "ram",
+            "same_gpu",
+            "none"
+        ],
+        "benchmark": false,
+        "strategy": "auto"
+    }
+}

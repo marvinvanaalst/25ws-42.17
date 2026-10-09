@@ -1,0 +1,33 @@
+{
+    "direction": {
+        "source": "3T_t1_patches",
+        "target": "7T_t1_patches"
+    },
+    "data": {
+        "training": {
+        "subjects_path": "/Drive4T/inam/MRMRData/T1",
+        "subjects": [
+            "sub-01_T1w_defaced_registered.nii.gz",
+            "sub-02_T1w_defaced_registered.nii.gz",
+            "sub-03_T1w_defaced_registered.nii.gz",
+            "sub-04_T1w_defaced_registered.nii.gz",
+            "sub-05_T1w_defaced_registered.nii.gz",
+            "sub-06_T1w_defaced_registered.nii.gz",
+            "sub-07_T1w_defaced_registered.nii.gz",
+            "sub-08_T1w_defaced_registered.nii.gz",
+            "sub-09_T1w_defaced_registered.nii.gz",
+            "sub-10_T1w_defaced_registered.nii.gz"
+        ]
+        },
+        "pre_training": {
+            "subjects_path": "data/pre_training_subjects",
+            "subjects": [
+                "sub-11",
+                "sub-12",
+                "sub-13",
+                "sub-14",
+                "sub-15"
+            ]
+        }
+}
+}
